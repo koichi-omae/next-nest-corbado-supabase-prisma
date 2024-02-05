@@ -22,6 +22,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@corbado/react": "^1.0.3",
     "@corbado/webcomponent": "^1.0.104",
     "@types/node": "^20",
     "@types/react": "^18",
