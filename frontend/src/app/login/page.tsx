@@ -8,7 +8,7 @@ import { useUser } from '@/hooks/auth/useUser';
 import { useSession } from '@/hooks/auth/useSession';
 import { useLoading } from '@/hooks/auth/useLoading';
 import { userObjState } from '@/app/model/auth/user';
-import CorbadoContainer from '@/components/views/CorbadoAuth';
+import CorbadoLoginContainer from '@/components/views/CorbadoLogin';
 
 export default function Profile() {
   const user = useRecoilValue(userObjState);
@@ -39,17 +39,17 @@ export default function Profile() {
         setLoading(false);
       });
     }
-
-    if (user) {
-      router.push('/todo');
-    }
   }, [session]);
 
-  return (
-    <div>
-      {loading && <LineWave />}
+  if (loading) {
+    return (
+      <div className='flex justify-center items-center h-screen'>
+        <LineWave />
+      </div>
+    );
+  }
 
-      {!loading && !user && <CorbadoContainer />}
-    </div>
-  );
+  if (!loading && user) router.push('/todo');
+
+  return <div>{!loading && !user && <CorbadoLoginContainer />}</div>;
 }
