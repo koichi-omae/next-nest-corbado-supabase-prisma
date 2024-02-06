@@ -4,7 +4,7 @@ export interface UserObj {
   userID: string;
   email: string;
   ID: string;
-  fullName: string;
+  userFullName: string;
   phoneNumber: string;
 }
 
