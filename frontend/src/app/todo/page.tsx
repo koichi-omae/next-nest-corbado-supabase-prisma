@@ -8,7 +8,15 @@ import { useUser } from '@/hooks/auth/useUser';
 import { useSession } from '@/hooks/auth/useSession';
 import { useLoading } from '@/hooks/auth/useLoading';
 import { userObjState } from '@/app/model/auth/user';
+import useSwr from 'swr';
+import { parseCookies } from 'nookies';
+import { request } from 'graphql-request';
+import TodoContainer, { TodoContainerProps } from '@/components/templates/TodoContainer';
 
+//create a fetcher function to use with useSwr
+const fetcher = (query: string) => {
+  return request('http://localhost:8080/graphql', query);
+};
 export default function Profile() {
   const user = useRecoilValue(userObjState);
   const { setLogin } = useUser();
@@ -50,23 +58,16 @@ export default function Profile() {
     router.push('/');
   };
 
+  const TodoContainerData: TodoContainerProps = {
+    userFullName: user?.userFullName || '',
+    handleLogout: handleLogout,
+  };
+
   return (
-    <div>
+    <div className='flex items-center justify-center h-screen'>
       {loading && <LineWave />}
 
-      {!loading && user && (
-        <div>
-          <h1>Profile Page</h1>
-          <div>
-            <p>
-              User-ID: {user.userID}
-              <br />
-              Email: {user.email}
-            </p>
-          </div>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )}
+      {!loading && user && <TodoContainer {...TodoContainerData} />}
 
       {!loading && !user && (
         <div>
