@@ -44,12 +44,12 @@ function TodoListPresentation({ ...props }: TodoListProps) {
                 e.stopPropagation();
                 props.handleUpdate?.(todo.id);
               }}
-              className={`${todo.completed ? 'bg-pink-500 ' : 'bg-gray-400 '} text-white px-2 py-1 rounded-md text-sm tracking-wide`}
+              className={`${todo.completed ? 'bg-pink-500 ' : 'bg-gray-400 '} text-white px-2 py-1 rounded-md text-sm tracking-wide hover:opacity-50`}
             >
               {todo.completed ? 'Completed' : 'Todo'}
             </span>
             <span
-              className='text-xl hover:opacity-75 hover:cursor-pointer ml-4'
+              className='text-xl hover:opacity-75 hover:cursor-pointer ml-4 hover:opacity-50'
               onClick={(e) => {
                 e.stopPropagation();
                 props.handleDelete?.(todo.id);
