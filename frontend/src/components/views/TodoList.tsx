@@ -49,7 +49,7 @@ function TodoListPresentation({ ...props }: TodoListProps) {
               {todo.completed ? 'Completed' : 'Todo'}
             </span>
             <span
-              className='text-xl hover:opacity-75 hover:cursor-pointer ml-4 hover:opacity-50'
+              className='text-xl hover:cursor-pointer ml-4 hover:opacity-50'
               onClick={(e) => {
                 e.stopPropagation();
                 props.handleDelete?.(todo.id);
