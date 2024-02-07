@@ -3,6 +3,7 @@ import { updateCompleted, deleteTodo } from '@/graphql/todo';
 import { request } from 'graphql-request';
 import { parseCookies } from 'nookies';
 import { useTodo } from '@/hooks/todo/useTodo';
+
 interface TodoListProps {
   todos?: TodoProps[];
   handleUpdate?: (id: number) => Promise<void>;
@@ -63,7 +64,7 @@ function TodoListPresentation({ ...props }: TodoListProps) {
 
 export default function TodoListsContainer() {
   const { todos, isLoading, isError, mutate } = useTodoSWR();
-  const { setEdit } = useTodo();
+  const { setEdit, resetTodo } = useTodo();
   const cookies = parseCookies();
 
   if (isLoading) return <div>Loading...</div>;
@@ -88,6 +89,7 @@ export default function TodoListsContainer() {
     const query = deleteTodo(id);
     await request(`${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`, query)
       .then(async (data) => {
+        resetTodo();
         await mutate();
       })
       .catch((err) => {
