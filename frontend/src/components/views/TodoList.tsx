@@ -70,7 +70,7 @@ export default function TodoListsContainer() {
   const cookies = parseCookies();
   const todo = useRecoilValue(todoState);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className='border-2 p-8 h-96'>Loading...</div>;
   if (isError) return <div>Error</div>;
 
   const handleUpdate = async (id: number) => {
