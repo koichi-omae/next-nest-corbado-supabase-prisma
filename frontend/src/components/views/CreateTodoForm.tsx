@@ -40,6 +40,14 @@ function CreateTodoFormPresentation({ ...props }: CreateTodoFormProps) {
           onChange={(e) => props.setDescription(e.target.value)}
         />
         <div className='text-right flex items-center justify-end gap-3'>
+          {props.todo.mode === 'edit' && (
+            <button
+              className='bg-gray-400 text-white py-2 px-4 rounded-md font-semibold tracking-wide my-4'
+              onClick={props.handleCancel}
+            >
+              Cancel
+            </button>
+          )}
           <button
             className={`${props.todo.mode === 'create' ? 'bg-blue-500' : 'bg-pink-500'}
              text-white py-2 px-4 rounded-md font-semibold tracking-wide my-4`}
@@ -56,14 +64,6 @@ function CreateTodoFormPresentation({ ...props }: CreateTodoFormProps) {
           >
             {props.todo.mode === 'create' ? 'Create' : 'Update'}
           </button>
-          {props.todo.mode === 'edit' && (
-            <button
-              className='bg-gray-400 text-white py-2 px-4 rounded-md font-semibold tracking-wide my-4'
-              onClick={props.handleCancel}
-            >
-              Cancel
-            </button>
-          )}
         </div>
       </label>
     </div>
