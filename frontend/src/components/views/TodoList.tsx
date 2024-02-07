@@ -3,7 +3,8 @@ import { request } from 'graphql-request';
 import { parseCookies } from 'nookies';
 interface TodoListProps {
   todos?: TodoProps[];
-  handleUpdate?: (id: string) => void;
+  handleUpdate?: (id: string) => Promise<void>;
+  handleDelete?: (id: string) => Promise<void>;
 }
 
 interface TodoProps {
@@ -22,12 +23,22 @@ function TodoListPresentation({ ...props }: TodoListProps) {
           className=' border-dashed border-2 rounded-md p-2 flex items-center justify-between mb-4 hover:cursor-pointer hover:bg-gray-100 transition-all duration-300 ease-in-out '
         >
           <p className='text-center text-xl tracking-wide font-semibold'>{todo.title}</p>
-          <span
-            onClick={() => props.handleUpdate?.(todo.id)}
-            className={`${todo.completed ? 'bg-pink-500 ' : 'bg-gray-400 '} text-white px-2 py-1 rounded-md text-sm tracking-wide`}
-          >
-            {todo.completed ? 'Completed' : 'Todo'}
-          </span>
+          <div>
+            <span
+              onClick={() => props.handleUpdate?.(todo.id)}
+              className={`${todo.completed ? 'bg-pink-500 ' : 'bg-gray-400 '} text-white px-2 py-1 rounded-md text-sm tracking-wide`}
+            >
+              {todo.completed ? 'Completed' : 'Todo'}
+            </span>
+            <span
+              className='text-xl hover:opacity-75 hover:cursor-pointer ml-4'
+              onClick={() => {
+                props.handleDelete?.(todo.id);
+              }}
+            >
+              ×
+            </span>
+          </div>
         </div>
       ))}
     </div>
@@ -59,9 +70,24 @@ export default function TodoListsContainer() {
     }
   };
 
+  const deleteTodo = async (id: string) => {
+    await request(
+      'http://localhost:8080/graphql',
+      `mutation { deleteTodo (shortSession: "${cookies.cbo_short_session}", id: ${id}) { id, title, description, completed } }`,
+    )
+      .then(async (data) => {
+        console.log(data);
+        await mutate();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const data: TodoListProps = {
     todos,
     handleUpdate,
+    handleDelete: deleteTodo,
   };
 
   return <TodoListPresentation {...data} />;
