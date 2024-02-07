@@ -1,3 +1,4 @@
+import CreateTodoFormContainer from '../views/CreateTodoForm';
 import TodoListsContainer from '../views/TodoList';
 
 export interface TodoContainerProps {
@@ -9,6 +10,7 @@ export default function TodoContainer({ ...props }: TodoContainerProps) {
   return (
     <div className=''>
       <h1 className='text-5xl font-bold tracking-wide mb-8'>{props.userFullName}のTODOリスト</h1>
+      <CreateTodoFormContainer />
       <TodoListsContainer />
       <div className='text-center mt-4'>
         <button

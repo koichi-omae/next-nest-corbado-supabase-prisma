@@ -66,6 +66,21 @@ export class TodosResolver {
   }
 
   @Mutation(() => Todo)
+  async updateCompleted(
+    @Args('id') id: number,
+    @Args('shortSession') shortSession: string,
+    @Args('completed') completed: boolean,
+  ) {
+    const user = await handleAuthenticated(shortSession);
+    const userId = user.getID();
+
+    return this.prisma.todo.update({
+      where: { id, userId },
+      data: { completed },
+    });
+  }
+
+  @Mutation(() => Todo)
   async deleteTodo(
     @Args('id') id: number,
     @Args('shortSession') shortSession: string,

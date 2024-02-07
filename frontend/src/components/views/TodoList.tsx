@@ -1,14 +1,23 @@
 import { useTodoSWR } from '@/hooks/todo/useTodoSwr';
+import { updateCompleted, deleteTodo } from '@/graphql/todo';
 import { request } from 'graphql-request';
 import { parseCookies } from 'nookies';
+import { useTodo } from '@/hooks/todo/useTodo';
 interface TodoListProps {
   todos?: TodoProps[];
-  handleUpdate?: (id: string) => Promise<void>;
-  handleDelete?: (id: string) => Promise<void>;
+  handleUpdate?: (id: number) => Promise<void>;
+  handleDelete?: (id: number) => Promise<void>;
+  handleChangeMode: (
+    id: number,
+    title: string,
+    description: string,
+    completed: boolean,
+    mode: 'create' | 'edit',
+  ) => void;
 }
 
 interface TodoProps {
-  id: string;
+  id: number;
   title: string;
   description: string;
   completed: boolean;
@@ -21,18 +30,25 @@ function TodoListPresentation({ ...props }: TodoListProps) {
         <div
           key={todo.id}
           className=' border-dashed border-2 rounded-md p-2 flex items-center justify-between mb-4 hover:cursor-pointer hover:bg-gray-100 transition-all duration-300 ease-in-out '
+          onClick={(e) =>
+            props.handleChangeMode(todo.id, todo.title, todo.description, todo.completed, 'edit')
+          }
         >
           <p className='text-center text-xl tracking-wide font-semibold'>{todo.title}</p>
           <div>
             <span
-              onClick={() => props.handleUpdate?.(todo.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.handleUpdate?.(todo.id);
+              }}
               className={`${todo.completed ? 'bg-pink-500 ' : 'bg-gray-400 '} text-white px-2 py-1 rounded-md text-sm tracking-wide`}
             >
               {todo.completed ? 'Completed' : 'Todo'}
             </span>
             <span
               className='text-xl hover:opacity-75 hover:cursor-pointer ml-4'
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 props.handleDelete?.(todo.id);
               }}
             >
@@ -47,21 +63,19 @@ function TodoListPresentation({ ...props }: TodoListProps) {
 
 export default function TodoListsContainer() {
   const { todos, isLoading, isError, mutate } = useTodoSWR();
+  const { setEdit } = useTodo();
   const cookies = parseCookies();
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error</div>;
 
-  const handleUpdate = async (id: string) => {
+  const handleUpdate = async (id: number) => {
     const todo = todos?.find((todo) => todo.id === id);
     if (todo) {
-      const updatedTodo = { ...todo, completed: !todo.completed };
+      const query = updateCompleted(id, !todo.completed);
 
-      await request(
-        'http://localhost:8080/graphql',
-        `mutation { updateTodo (shortSession: "${cookies.cbo_short_session}", id: ${id}, title: "${todo.title}", description: "${todo.description}" completed: ${!todo.completed}) { id, title, description, completed } }`,
-      )
+      await request(`${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`, query)
         .then(async (data) => {
-          console.log(data);
           await mutate();
         })
         .catch((err) => {
@@ -70,13 +84,10 @@ export default function TodoListsContainer() {
     }
   };
 
-  const deleteTodo = async (id: string) => {
-    await request(
-      'http://localhost:8080/graphql',
-      `mutation { deleteTodo (shortSession: "${cookies.cbo_short_session}", id: ${id}) { id, title, description, completed } }`,
-    )
+  const handleDelete = async (id: number) => {
+    const query = deleteTodo(id);
+    await request(`${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`, query)
       .then(async (data) => {
-        console.log(data);
         await mutate();
       })
       .catch((err) => {
@@ -84,10 +95,21 @@ export default function TodoListsContainer() {
       });
   };
 
+  const handleChangeMode = (
+    id: number,
+    title: string,
+    description: string,
+    completed: boolean,
+    mode: 'create' | 'edit',
+  ) => {
+    setEdit({ id, title, description, completed, mode });
+  };
+
   const data: TodoListProps = {
     todos,
     handleUpdate,
-    handleDelete: deleteTodo,
+    handleDelete,
+    handleChangeMode,
   };
 
   return <TodoListPresentation {...data} />;
