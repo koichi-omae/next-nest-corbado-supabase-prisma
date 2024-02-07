@@ -3,6 +3,8 @@ import { updateCompleted, deleteTodo } from '@/graphql/todo';
 import { request } from 'graphql-request';
 import { parseCookies } from 'nookies';
 import { useTodo } from '@/hooks/todo/useTodo';
+import { todoState, TodoObj } from '@/model/todo';
+import { useRecoilValue } from 'recoil';
 
 interface TodoListProps {
   todos?: TodoProps[];
@@ -66,6 +68,7 @@ export default function TodoListsContainer() {
   const { todos, isLoading, isError, mutate } = useTodoSWR();
   const { setEdit, resetTodo } = useTodo();
   const cookies = parseCookies();
+  const todo = useRecoilValue(todoState);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error</div>;
@@ -89,7 +92,7 @@ export default function TodoListsContainer() {
     const query = deleteTodo(id);
     await request(`${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`, query)
       .then(async (data) => {
-        resetTodo();
+        if (todo.id === id) resetTodo();
         await mutate();
       })
       .catch((err) => {
